@@ -29,18 +29,3 @@ def listar_por_id(id_doador: int):
         raise HTTPException(404, detail="Nenhuma doação encontrada para esse doador.")
     return resultado
 
-@router.put("/doacoes/{id_doacao}", response_model=Doacao)
-def editar_doacao(id_doacao: int, doacao_base: DoacaoBase):
-    for i, doacao in enumerate(doacoes):
-        if doacao.id == id_doacao:
-            atualizada = Doacao(id=id_doacao, **doacao_base.dict())
-            doacoes[i] = atualizada
-            return atualizada
-    raise HTTPException(404, "Doação não encontrada.")
-
-@router.delete("/doacoes/{id_doacao}", response_model=Doacao)
-def deletar_doacao(id_doacao: int):
-    for i, doacao in enumerate(doacoes):
-        if doacao.id == id_doacao:
-            return doacoes.pop(i)
-    raise HTTPException(404, "Doação não encontrada.")
