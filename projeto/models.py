@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 from datetime import date
 
 
@@ -30,8 +29,8 @@ class CampanhaBase(BaseModel):
     descricao: str
     meta_financeira: str
     meta_itens: str
-    data_inicio: Optional[date] = None
-    data_fim: Optional[date] = None
+    data_inicio: date
+    data_fim: date
     status: bool
 
 
@@ -51,9 +50,9 @@ class DoacaoBase(BaseModel):
     id_doador: int
     id_campanha: int
     tipo_doacao: str
-    tipo_item: Optional[str] = None
-    quantidade: Optional[int] = None
-    valor: Optional[float] = None
+    tipo_item: str
+    quantidade: int
+    valor: float
     data_doacao: date
 
 
@@ -62,12 +61,13 @@ class Doacao(DoacaoBase):
 
 
 class RelatorioBase(BaseModel):
-    id_campanha: Optional[int] = None
-    data_referencia: Optional[date] = None
-    total: Optional[float] = None
+    id_campanha: int
+    data_referencia: date
+    total: float
     total_itens_doados: int
     meta_comparativo: str
 
 
 class Relatorio(RelatorioBase):
     id: int
+
