@@ -47,8 +47,8 @@ class Categoria(CategoriaBase):
 
 
 class DoacaoBase(BaseModel):
-    id_doador: int
-    id_campanha: int
+    nome_doador: str
+    titulo_campanha: str  
     tipo_doacao: str
     tipo_item: str
     quantidade: int
