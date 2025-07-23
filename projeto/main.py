@@ -7,3 +7,4 @@ app = FastAPI()
 app.include_router(doacoes.router)  
 app.include_router(campanhas.router) 
 app.include_router(auth.router) 
+

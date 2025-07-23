@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<title>Listagem e Gerenciamento - Sistema</title>
+<link rel="stylesheet" href="style.css" />
+<style>
+  section {
+    margin-bottom: 40px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+  }
+  th, td {
+    border: 1px solid #a3b1d1;
+    padding: 8px 12px;
+    text-align: left;
+  }
+  th {
+    background-color: #3949ab;
+    color: white;
+  }
+  button {
+    background-color: #3949ab;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    font-size: 0.9em;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 6px;
+    transition: background-color 0.3s ease;
+  }
+  button:hover {
+    background-color: #283593;
+  }
+  .btn-excluir {
+    background-color: #b71c1c;
+  }
+  .btn-excluir:hover {
+    background-color: #7f0000;
+  }
+  #msg {
+    font-weight: 600;
+    margin-top: 10px;
+    color: #1a237e;
+    text-align: center;
+  }
+  input[type=text], input[type=email], input[type=tel], input[type=password], input[type=number], input[type=date], select {
+    width: 100%;
+    box-sizing: border-box;
+  }
+</style>
+</head>
+<body>
+<header>Sistema de Campanhas e Doações</header>
+<nav>
+  <a href="index.html">Início</a>
+  <a href="cadastro.html">Cadastro</a>
+  <a href="listar.html" class="active">Listar</a>
+</nav>
+<main>
+  <h1>Listagem e Gerenciamento</h1>
+
+  <section id="listaAdmins">
+    <h2>Admins</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Telefone</th>
+          <th>Senha</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="listaDoadores">
+    <h2>Doadores</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Telefone</th>
+          <th>Senha</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="listaCampanhas">
+    <h2>Campanhas</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Admin (Email)</th>
+          <th>Título</th>
+          <th>Descrição</th>
+          <th>Meta Financeira</th>
+          <th>Meta Itens</th>
+          <th>Início</th>
+          <th>Fim</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <section id="listaDoacoes">
+    <h2>Doações</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Doador (Email)</th>
+          <th>Campanha</th>
+          <th>Tipo</th>
+          <th>Tipo do Item</th>
+          <th>Quantidade</th>
+          <th>Valor (R$)</th>
+          <th>Data</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <div id="msg"></div>
+</main>
+<footer>
+  <small>© 2025 Sistema de Campanhas e Doações - Feito com ❤️</small>
+</footer>
+
+<script>
+  // Buscar dados do localStorage
+  let admins = JSON.parse(localStorage.getItem('admins') || '[]');
+  let doadores = JSON.parse(localStorage.getItem('doadores') || '[]');
+  let campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+  let doacoes = JSON.parse(localStorage.getItem('doacoes') || '[]');
+
+  const msgDiv = document.getElementById('msg');
+
+  function salvarTudo() {
+    localStorage.setItem('admins', JSON.stringify(admins));
+    localStorage.setItem('doadores', JSON.stringify(doadores));
+    localStorage.setItem('campanhas', JSON.stringify(campanhas));
+    localStorage.setItem('doacoes', JSON.stringify(doacoes));
+  }
+
+  function atualizarTabelas() {
+    // Admins
+    const tbodyAdmins = document.querySelector('#listaAdmins tbody');
+    tbodyAdmins.innerHTML = '';
+    admins.forEach((admin, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${admin.nome}</td>
+        <td>${admin.email}</td>
+        <td>${admin.telefone}</td>
+        <td>${admin.senha}</td>
+        <td>
+          <button onclick="editarAdmin(${i})">Editar</button>
+          <button class="btn-excluir" onclick="excluirAdmin(${i})">Excluir</button>
+        </td>`;
+      tbodyAdmins.appendChild(tr);
+    });
+
+    // Doadores
+    const tbodyDoadores = document.querySelector('#listaDoadores tbody');
+    tbodyDoadores.innerHTML = '';
+    doadores.forEach((doador, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${doador.nome}</td>
+        <td>${doador.email}</td>
+        <td>${doador.telefone}</td>
+        <td>${doador.senha}</td>
+        <td>
+          <button onclick="editarDoador(${i})">Editar</button>
+          <button class="btn-excluir" onclick="excluirDoador(${i})">Excluir</button>
+        </td>`;
+      tbodyDoadores.appendChild(tr);
+    });
+
+    // Campanhas
+    const tbodyCampanhas = document.querySelector('#listaCampanhas tbody');
+    tbodyCampanhas.innerHTML = '';
+    campanhas.forEach((campanha, i) => {
+      const statusTexto = campanha.status ? 'Ativa' : 'Inativa';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${campanha.admin_email}</td>
+        <td>${campanha.titulo}</td>
+        <td>${campanha.descricao}</td>
+        <td>${campanha.meta_financeira}</td>
+        <td>${campanha.meta_itens}</td>
+        <td>${campanha.data_inicio}</td>
+        <td>${campanha.data_fim}</td>
+        <td>${statusTexto}</td>
+        <td>
+          <button onclick="editarCampanha(${i})">Editar</button>
+          <button class="btn-excluir" onclick="excluirCampanha(${i})">Excluir</button>
+        </td>`;
+      tbodyCampanhas.appendChild(tr);
+    });
+
+    // Doações
+    const tbodyDoacoes = document.querySelector('#listaDoacoes tbody');
+    tbodyDoacoes.innerHTML = '';
+    doacoes.forEach((doacao, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${doacao.nome_doador_email}</td>
+        <td>${doacao.titulo_campanha}</td>
+        <td>${doacao.tipo_doacao}</td>
+        <td>${doacao.tipo_item}</td>
+        <td>${doacao.quantidade}</td>
+        <td>${doacao.valor.toFixed(2)}</td>
+        <td>${doacao.data_doacao}</td>
+        <td>
+          <button onclick="editarDoacao(${i})">Editar</button>
+          <button class="btn-excluir" onclick="excluirDoacao(${i})">Excluir</button>
+        </td>`;
+      tbodyDoacoes.appendChild(tr);
+    });
+  }
+
+  // Exclusões
+  function excluirAdmin(i) {
+    if (confirm('Deseja excluir este admin?')) {
+      admins.splice(i, 1);
+      salvarTudo();
+      atualizarTabelas();
+      msgDiv.textContent = 'Admin excluído com sucesso.';
+    }
+  }
+
+  function excluirDoador(i) {
+    if (confirm('Deseja excluir este doador?')) {
+      doadores.splice(i, 1);
+      salvarTudo();
+      atualizarTabelas();
+      msgDiv.textContent = 'Doador excluído com sucesso.';
+    }
+  }
+
+  function excluirCampanha(i) {
+    if (confirm('Deseja excluir esta campanha?')) {
+      campanhas.splice(i, 1);
+      salvarTudo();
+      atualizarTabelas();
+      msgDiv.textContent = 'Campanha excluída com sucesso.';
+    }
+  }
+
+  function excluirDoacao(i) {
+    if (confirm('Deseja excluir esta doação?')) {
+      doacoes.splice(i, 1);
+      salvarTudo();
+      atualizarTabelas();
+      msgDiv.textContent = 'Doação excluída com sucesso.';
+    }
+  }
+
+  // Edição (simples: prompt para alterar cada campo)
+  function editarAdmin(i) {
+    const admin = admins[i];
+    const nome = prompt('Nome:', admin.nome);
+    if (nome === null) return;
+    const email = prompt('Email:', admin.email);
+    if (email === null) return;
+    const telefone = prompt('Telefone:', admin.telefone);
+    if (telefone === null) return;
+    const senha = prompt('Senha:', admin.senha);
+    if (senha === null) return;
+
+    admins[i] = { nome, email, telefone, senha };
+    salvarTudo();
+    atualizarTabelas();
+    msgDiv.textContent = 'Admin editado com sucesso.';
+  }
+
+  function editarDoador(i) {
+    const doador = doadores[i];
+    const nome = prompt('Nome:', doador.nome);
+    if (nome === null) return;
+    const email = prompt('Email:', doador.email);
+    if (email === null) return;
+    const telefone = prompt('Telefone:', doador.telefone);
+    if (telefone === null) return;
+    const senha = prompt('Senha:', doador.senha);
+    if (senha === null) return;
+
+    doadores[i] = { nome, email, telefone, senha };
+    salvarTudo();
+    atualizarTabelas();
+    msgDiv.textContent = 'Doador editado com sucesso.';
+  }
+
+  function editarCampanha(i) {
+    const campanha = campanhas[i];
+    const admin_email = prompt('Admin (email):', campanha.admin_email);
+    if (admin_email === null) return;
+    const titulo = prompt('Título:', campanha.titulo);
+    if (titulo === null) return;
+    const descricao = prompt('Descrição:', campanha.descricao);
+    if (descricao === null) return;
+    const meta_financeira = prompt('Meta Financeira:', campanha.meta_financeira);
+    if (meta_financeira === null) return;
+    const meta_itens = prompt('Meta Itens:', campanha.meta_itens);
+    if (meta_itens === null) return;
+    const data_inicio = prompt('Data Início (YYYY-MM-DD):', campanha.data_inicio);
+    if (data_inicio === null) return;
+    const data_fim = prompt('Data Fim (YYYY-MM-DD):', campanha.data_fim);
+    if (data_fim === null) return;
+    const status = confirm('Está ativo? OK para sim, Cancelar para não');
+
+    campanhas[i] = {
+      admin_email,
+      titulo,
+      descricao,
+      meta_financeira: Number(meta_financeira),
+      meta_itens: Number(meta_itens),
+      data_inicio,
+      data_fim,
+      status
+    };
+    salvarTudo();
+    atualizarTabelas();
+    msgDiv.textContent = 'Campanha editada com sucesso.';
+  }
+
+  function editarDoacao(i) {
+    const doacao = doacoes[i];
+    const nome_doador_email = prompt('Doador (email):', doacao.nome_doador_email);
+    if (nome_doador_email === null) return;
+    const titulo_campanha = prompt('Campanha (título):', doacao.titulo_campanha);
+    if (titulo_campanha === null) return;
+    const tipo_doacao = prompt('Tipo de doação:', doacao.tipo_doacao);
+    if (tipo_doacao === null) return;
+    const tipo_item = prompt('Tipo do item:', doacao.tipo_item);
+    if (tipo_item === null) return;
+    const quantidade = prompt('Quantidade:', doacao.quantidade);
+    if (quantidade === null) return;
+    const valor = prompt('Valor:', doacao.valor);
+    if (valor === null) return;
+    const data_doacao = prompt('Data da doação (YYYY-MM-DD):', doacao.data_doacao);
+    if (data_doacao === null) return;
+
+    doacoes[i] = {
+      nome_doador_email,
+      titulo_campanha,
+      tipo_doacao,
+      tipo_item,
+      quantidade: Number(quantidade),
+      valor: Number(valor),
+      data_doacao
+    };
+    salvarTudo();
+    atualizarTabelas();
+    msgDiv.textContent = 'Doação editada com sucesso.';
+  }
+
+  // Inicializar tabela ao carregar a página
+  atualizarTabelas();
+</script>
+</body>
+</html>

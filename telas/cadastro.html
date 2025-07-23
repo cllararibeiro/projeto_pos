@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cadastro Completo - Sistema</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>Sistema de Campanhas e Doações</header>
+  <nav>
+    <a href="index.html">Início</a>
+    <a href="cadastro.html" class="active">Cadastro</a>
+    <a href="listar.html">Listar</a>
+  </nav>
+  <main>
+    <h1>Cadastro Completo</h1>
+
+    <section>
+      <h2>Cadastro de Admin</h2>
+      <form id="formAdmin" onsubmit="return cadastrarAdmin(event)">
+        <label>Nome:<br /><input type="text" id="nomeAdmin" required /></label><br />
+        <label>Email:<br /><input type="email" id="emailAdmin" required /></label><br />
+        <label>Telefone:<br /><input type="tel" id="telefoneAdmin" required /></label><br />
+        <label>Senha:<br /><input type="password" id="senhaAdmin" required /></label><br />
+        <button type="submit">Cadastrar Admin</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Cadastro de Doador</h2>
+      <form id="formDoador" onsubmit="return cadastrarDoador(event)">
+        <label>Nome:<br /><input type="text" id="nomeDoador" required /></label><br />
+        <label>Email:<br /><input type="email" id="emailDoador" required /></label><br />
+        <label>Telefone:<br /><input type="tel" id="telefoneDoador" required /></label><br />
+        <label>Senha:<br /><input type="password" id="senhaDoador" required /></label><br />
+        <button type="submit">Cadastrar Doador</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Cadastro de Campanha</h2>
+      <form id="formCampanha" onsubmit="return cadastrarCampanha(event)">
+        <label>Admin (email):<br />
+          <select id="adminCampanhaSelect" required></select>
+        </label><br />
+        <label>Título:<br /><input type="text" id="tituloCampanha" required /></label><br />
+        <label>Descrição:<br /><textarea id="descricaoCampanha" rows="3" required></textarea></label><br />
+        <label>Meta Financeira:<br /><input type="number" id="metaFinanceiraCampanha" min="0" /></label><br />
+        <label>Meta Itens:<br /><input type="number" id="metaItensCampanha" min="0" /></label><br />
+        <label>Data Início:<br /><input type="date" id="dataInicioCampanha" required /></label><br />
+        <label>Data Fim:<br /><input type="date" id="dataFimCampanha" required /></label><br />
+        <label>Status:<input type="checkbox" id="statusCampanha" /></label><br />
+        <button type="submit">Cadastrar Campanha</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Cadastro de Doação</h2>
+      <form id="formDoacao" onsubmit="return cadastrarDoacao(event)">
+        <label>Doador (email):<br />
+          <select id="doadorDoacaoSelect" required></select>
+        </label><br />
+        <label>Campanha (título):<br />
+          <select id="campanhaDoacaoSelect" required></select>
+        </label><br />
+        <label>Tipo de Doação:<br />
+          <select id="tipoDoacao">
+            <option value="dinheiro">Dinheiro</option>
+            <option value="item">Item</option>
+          </select>
+        </label><br />
+        <label>Tipo do Item:<br /><input type="text" id="tipoItemDoacao" /></label><br />
+        <label>Quantidade:<br /><input type="number" id="quantidadeDoacao" min="0" /></label><br />
+        <label>Valor (R$):<br /><input type="number" id="valorDoacao" min="0" step="0.01" /></label><br />
+        <label>Data da Doação:<br /><input type="date" id="dataDoacao" required /></label><br />
+        <button type="submit">Cadastrar Doação</button>
+      </form>
+    </section>
+  </main>
+  <footer>
+    <small>© 2025 Sistema de Campanhas e Doações - Feito com ❤️</small>
+  </footer>
+
+<script>
+  // Carregar dados do localStorage ou iniciar arrays vazios
+  let admins = JSON.parse(localStorage.getItem('admins') || '[]');
+  let doadores = JSON.parse(localStorage.getItem('doadores') || '[]');
+  let campanhas = JSON.parse(localStorage.getItem('campanhas') || '[]');
+  let doacoes = JSON.parse(localStorage.getItem('doacoes') || '[]');
+
+  function salvarTudo() {
+    localStorage.setItem('admins', JSON.stringify(admins));
+    localStorage.setItem('doadores', JSON.stringify(doadores));
+    localStorage.setItem('campanhas', JSON.stringify(campanhas));
+    localStorage.setItem('doacoes', JSON.stringify(doacoes));
+  }
+
+  // Atualiza selects dos forms de campanha e doação
+  function atualizarSelects() {
+    const adminSelect = document.getElementById('adminCampanhaSelect');
+    const doadorSelect = document.getElementById('doadorDoacaoSelect');
+    const campanhaSelect = document.getElementById('campanhaDoacaoSelect');
+
+    // Limpar selects
+    adminSelect.innerHTML = '';
+    doadorSelect.innerHTML = '';
+    campanhaSelect.innerHTML = '';
+
+   
+    admins.forEach(admin => {
+      const opt = document.createElement('option');
+      opt.value = admin.email;
+      opt.textContent = `${admin.nome} (${admin.email})`;
+      adminSelect.appendChild(opt);
+    });
+
+   
+    doadores.forEach(doador => {
+      const opt = document.createElement('option');
+      opt.value = doador.email;
+      opt.textContent = `${doador.nome} (${doador.email})`;
+      doadorSelect.appendChild(opt);
+    });
+
+    
+    campanhas.forEach(campanha => {
+      const opt = document.createElement('option');
+      opt.value = campanha.titulo;
+      opt.textContent = campanha.titulo;
+      campanhaSelect.appendChild(opt);
+    });
+  }
+
+  atualizarSelects();
+
+  // Cadastro Admin
+  function cadastrarAdmin(event) {
+    event.preventDefault();
+    const nome = document.getElementById('nomeAdmin').value.trim();
+    const email = document.getElementById('emailAdmin').value.trim().toLowerCase();
+    const telefone = document.getElementById('telefoneAdmin').value.trim();
+    const senha = document.getElementById('senhaAdmin').value;
+
+    if (admins.some(a => a.email === email)) {
+      alert('Já existe um admin cadastrado com este email.');
+      return false;
+    }
+
+    admins.push({ nome, email, telefone, senha });
+    salvarTudo();
+    atualizarSelects();
+    alert('Admin cadastrado com sucesso!');
+    document.getElementById('formAdmin').reset();
+    return false;
+  }
+
+  // Cadastro Doador
+  function cadastrarDoador(event) {
+    event.preventDefault();
+    const nome = document.getElementById('nomeDoador').value.trim();
+    const email = document.getElementById('emailDoador').value.trim().toLowerCase();
+    const telefone = document.getElementById('telefoneDoador').value.trim();
+    const senha = document.getElementById('senhaDoador').value;
+
+    if (doadores.some(d => d.email === email)) {
+      alert('Já existe um doador cadastrado com este email.');
+      return false;
+    }
+
+    doadores.push({ nome, email, telefone, senha });
+    salvarTudo();
+    atualizarSelects();
+    alert('Doador cadastrado com sucesso!');
+    document.getElementById('formDoador').reset();
+    return false;
+  }
+
+  // Cadastro Campanha
+  function cadastrarCampanha(event) {
+    event.preventDefault();
+    const admin_email = document.getElementById('adminCampanhaSelect').value;
+    const titulo = document.getElementById('tituloCampanha').value.trim();
+    const descricao = document.getElementById('descricaoCampanha').value.trim();
+    const meta_financeira = Number(document.getElementById('metaFinanceiraCampanha').value) || 0;
+    const meta_itens = Number(document.getElementById('metaItensCampanha').value) || 0;
+    const data_inicio = document.getElementById('dataInicioCampanha').value;
+    const data_fim = document.getElementById('dataFimCampanha').value;
+    const status = document.getElementById('statusCampanha').checked;
+
+    if (campanhas.some(c => c.titulo.toLowerCase() === titulo.toLowerCase())) {
+      alert('Já existe uma campanha com este título.');
+      return false;
+    }
+
+    campanhas.push({ admin_email, titulo, descricao, meta_financeira, meta_itens, data_inicio, data_fim, status });
+    salvarTudo();
+    atualizarSelects();
+    alert('Campanha cadastrada com sucesso!');
+    document.getElementById('formCampanha').reset();
+    return false;
+  }
+
+  // Cadastro Doação
+  function cadastrarDoacao(event) {
+    event.preventDefault();
+    const nome_doador_email = document.getElementById('doadorDoacaoSelect').value;
+    const titulo_campanha = document.getElementById('campanhaDoacaoSelect').value;
+    const tipo_doacao = document.getElementById('tipoDoacao').value;
+    const tipo_item = document.getElementById('tipoItemDoacao').value.trim();
+    const quantidade = Number(document.getElementById('quantidadeDoacao').value) || 0;
+    const valor = Number(document.getElementById('valorDoacao').value) || 0;
+    const data_doacao = document.getElementById('dataDoacao').value;
+
+    doacoes.push({ nome_doador_email, titulo_campanha, tipo_doacao, tipo_item, quantidade, valor, data_doacao });
+    salvarTudo();
+    alert('Doação cadastrada com sucesso!');
+    document.getElementById('formDoacao').reset();
+    return false;
+  }
+</script>
+</body>
+</html>
