@@ -18,9 +18,6 @@ def cadastro_admin(admin: Admin):
     admins.append(admin)
     return {"msg": "Administrador cadastrado com sucesso", "id": admin.id}
 
-@router.get("/auth/admins")
-def listar_admins():
-    return admins
 
 @router.get("/auth/doadores")
 def listar_doadores():
